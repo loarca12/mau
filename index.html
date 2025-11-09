@@ -2,41 +2,58 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=0.5, maximum-scale=3.0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000000">
     <title>Para Mauuu 💕</title>
     <link rel="icon" type="image/png" href="ruta-de-tu-imagen.jpeg">
     <style>
         * {
             -webkit-tap-highlight-color: transparent;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
         
-        html, body {
+        html {
             width: 100%;
             height: 100%;
+            height: calc(var(--vh, 1vh) * 100);
             position: fixed;
             overflow: hidden;
+            background: #000;
         }
         
         body {
             margin: 0;
             padding: 0;
+            width: 100%;
+            height: 100%;
+            height: calc(var(--vh, 1vh) * 100);
+            position: fixed;
             overflow: hidden;
             font-family: Arial, sans-serif;
-            touch-action: pan-x pan-y;
+            background: #000;
+            overscroll-behavior: none;
         }
         
         #root {
             width: 100vw;
             height: 100vh;
+            height: calc(var(--vh, 1vh) * 100);
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: #000;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
             position: fixed;
             top: 0;
             left: 0;
@@ -188,6 +205,16 @@
             useEffect(() => {
                 if (!containerRef.current) return;
 
+                // Fix viewport height on mobile to eliminate white bars
+                const setViewportHeight = () => {
+                    const vh = window.innerHeight * 0.01;
+                    document.documentElement.style.setProperty('--vh', `${vh}px`);
+                };
+                
+                setViewportHeight();
+                window.addEventListener('resize', setViewportHeight);
+                window.addEventListener('orientationchange', setViewportHeight);
+
                 const scene = new THREE.Scene();
                 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
                 const renderer = new THREE.WebGLRenderer({ 
@@ -201,18 +228,15 @@
                 
                 // Optimize renderer for mobile
                 renderer.setSize(window.innerWidth, window.innerHeight);
-                if (isMobile) {
-                    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-                } else {
-                    renderer.setPixelRatio(window.devicePixelRatio);
-                }
+                // Use full device pixel ratio for high quality on retina displays
+                renderer.setPixelRatio(window.devicePixelRatio);
                 containerRef.current.appendChild(renderer.domElement);
 
-                // Adjust particle counts based on device
-                const heartParticlesCount = isMobile ? 1000 : 2000;
-                const galaxyParticlesCount = isMobile ? 4000 : 8000;
-                const sparklesCount = isMobile ? 250 : 500;
-                const starsCount = isMobile ? 1000 : 2000;
+                // Adjust particle counts based on device - higher quality preferred
+                const heartParticlesCount = isMobile ? 1500 : 2000;
+                const galaxyParticlesCount = isMobile ? 6000 : 8000;
+                const sparklesCount = isMobile ? 400 : 500;
+                const starsCount = isMobile ? 1500 : 2000;
 
                 // Heart particles
                 const heartGeometry = new THREE.BufferGeometry();
